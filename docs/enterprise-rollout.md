@@ -6,11 +6,13 @@ This guide scales the repository pattern without introducing a custom GitHub App
 
 Use three independent layers:
 
-1. **Discoverability:** Configure GitHub autolinks for every Jira project key.
+1. **Discoverability:** Configure GitHub autolinks for every Jira project key and place a plain key in rendered Markdown such as the PR body.
 2. **Behavior shaping:** Start branch-name rulesets in Evaluate mode.
 3. **Enforcement:** Run a repository-owned PR metadata workflow on title edits and require its stable `Jira ticket` status check.
 
 Install the [official GitHub for Atlassian integration](https://github.com/marketplace/github-for-jira) separately when Jira users need GitHub development data in Jira. Autolinks remain useful because they solve the opposite direction: finding Jira from GitHub.
+
+PR titles are plain text, not a clickable Markdown surface. Keep the Jira key in the title for association and validation, and repeat it as plain, non-code-formatted text in the PR body for the clickable GitHub autolink.
 
 ## Rollout sequence
 

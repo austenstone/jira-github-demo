@@ -1,8 +1,8 @@
 ## Jira
 
-Jira issue: `ABC-123`
+Jira issue: ABC-123
 
-The pull request title must contain the same Jira key. GitHub will turn a configured key into a clickable link, and the `Jira ticket` check will prove that the issue exists.
+Keep the Jira key above as plain Markdown text so GitHub renders the configured autolink. The pull request title must contain the same key for Jira association and validation, but title text is not itself a clickable Markdown surface. The `Jira ticket` check will prove that the issue exists.
 
 If the check fails:
 
