@@ -15,7 +15,7 @@ The live public example uses Atlassian's public [`JRASERVER-1`](https://jira.atl
 
 ## Live demo
 
-1. Open the repository's [demo pull request](../../pulls) and click `JRASERVER-1` in its title. GitHub turns the key into a direct Jira link through the repository autolink.
+1. Open [demo pull request #1](../../pull/1) and click `JRASERVER-1` in its title. GitHub turns the key into a direct Jira link through the repository autolink.
 2. Open the `Jira ticket` check. It extracts the key and calls Jira's issue API to prove that the issue is visible.
 3. Edit the title and remove or corrupt the key. The ordinary repository workflow listens for `pull_request_target.edited`, so a new `Jira ticket` run fails.
 4. Restore `JRASERVER-1`. The next edited run succeeds.
@@ -144,6 +144,8 @@ GitHub autolinks are configured per project-key prefix. Repeat the command for e
 ### Branch names
 
 [`jira-branch-name.evaluate.json`](rulesets/jira-branch-name.evaluate.json) is intentionally in `evaluate` mode. It measures and surfaces the desired `ABC-123-description` convention without blocking existing automation or emergency work.
+
+GitHub's ruleset API currently rejects `branch_name_pattern` for this user-owned demo repository with `422 Invalid rule`. The committed payload is the exact configuration to apply in an organization repository whose plan supports the rule.
 
 Apply it with:
 
