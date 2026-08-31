@@ -1,0 +1,49 @@
+name: Jira ticket
+
+on: # zizmor: ignore[dangerous-triggers] Metadata only; never checks out or executes PR code.
+  pull_request_target:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+      - ready_for_review
+  merge_group:
+    types:
+      - checks_requested
+
+permissions:
+  contents: read
+
+concurrency:
+  group: jira-ticket-${{ github.event.pull_request.number || github.event.merge_group.head_sha }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Jira ticket
+    runs-on: ubuntu-slim
+    timeout-minutes: 2
+    steps:
+      - name: Check out the trusted validator
+        if: github.event_name == 'pull_request_target'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          sparse-checkout: scripts/jira-validator.mjs
+          sparse-checkout-cone-mode: false
+
+      - name: Validate the Jira ticket
+        if: github.event_name == 'pull_request_target'
+        env:
+          JIRA_API_TOKEN: ${{ secrets.JIRA_API_TOKEN }}
+          JIRA_API_VERSION: ${{ vars.JIRA_API_VERSION || '2' }}
+          JIRA_BASE_URL: ${{ vars.JIRA_BASE_URL || 'https://jira.atlassian.com' }}
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node scripts/jira-validator.mjs
+
+      - name: Preserve the required check in merge queue
+        if: github.event_name == 'merge_group'
+        run: echo 'Each pull request title was validated before entering the merge queue.'
