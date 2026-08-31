@@ -6,16 +6,16 @@ This repository is a working demo and reference architecture for connecting Jira
 
 The design uses:
 
-- [GitHub autolink references](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-autolinks-to-reference-external-resources) for the visible, clickable Jira key in GitHub.
+- [GitHub autolink references](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-autolinks-to-reference-external-resources) for visible, clickable Jira keys in rendered Markdown such as PR bodies and comments.
 - The [official GitHub for Atlassian integration](https://github.com/marketplace/github-for-jira) when teams also want branches, commits, pull requests, deployments, and security data to appear in Jira.
 - A small, metadata-only GitHub Actions workflow to prove that the Jira issue in a pull request title exists.
 - Rulesets for behavior shaping and merge enforcement, without requiring a Jira key in every commit.
 
-The live public example uses Atlassian's public [`JRASERVER-1`](https://jira.atlassian.com/browse/JRASERVER-1) issue. No Jira credentials are stored in this repository.
+The live public example uses Atlassian's public JRASERVER-1 issue. No Jira credentials are stored in this repository.
 
 ## Live demo
 
-1. Open [demo pull request #1](../../pull/1) and click `JRASERVER-1` in its title. GitHub turns the key into a direct Jira link through the repository autolink.
+1. Open [demo pull request #1](../../pull/1) and click the plain JRASERVER-1 reference in its body. GitHub turns that Markdown text into a direct Jira link through the repository autolink.
 2. Open the `Jira ticket` check. It extracts the key and calls Jira's issue API to prove that the issue is visible.
 3. Edit the title and remove or corrupt the key. The ordinary repository workflow listens for `pull_request_target.edited`, so a new `Jira ticket` run fails.
 4. Restore `JRASERVER-1`. The next edited run succeeds.
@@ -25,21 +25,23 @@ The live public example uses Atlassian's public [`JRASERVER-1`](https://jira.atl
 
 | Surface | What users see | Mechanism |
 | --- | --- | --- |
-| GitHub PR title, body, commit message, issue, or release text | A clickable Jira key such as `JRASERVER-1` | GitHub repository autolink |
+| GitHub PR body, comment, README, issue, or other rendered Markdown | A clickable Jira key such as JRASERVER-1 | GitHub repository autolink |
+| GitHub PR title | A plain Jira key used for association and validation; the title itself is not a clickable Markdown surface | Jira integration and this repository's workflow |
 | GitHub PR checks | A stable `Jira ticket` pass or failure with actionable error text | This repository's workflow |
 | Jira development panel | Linked branches, commits, PRs, deployments, and other development data | Official GitHub for Atlassian integration |
 | GitHub branch creation | Evaluate-mode feedback for `ABC-123-description` | Branch-name ruleset |
 | GitHub merge box | A required `Jira ticket` check, if enabled | Required status check ruleset |
 
-The official Jira integration solves the Jira-side view. It does not guarantee that a reviewer can quickly find the Jira issue while staying in GitHub. Autolinks solve that discoverability gap with a native link wherever the key appears.
+The official Jira integration solves the Jira-side view. It does not guarantee that a reviewer can quickly find the Jira issue while staying in GitHub. Autolinks solve that discoverability gap when the key appears in rendered Markdown. PR titles remain useful for Jira association and validation, but GitHub does not render title text as a clickable autolink.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Author[PR author] -->|puts ABC-123 in title| PR[GitHub pull request]
-    PR -->|autolink| JiraUI[Jira issue page]
-    PR -->|opened, edited, synchronize,<br/>reopened, ready for review| Workflow[Metadata-only Actions workflow]
+    Author[PR author] -->|puts ABC-123 in title| Title[PR title]
+    Author -->|puts plain ABC-123 in Markdown| Body[PR body]
+    Body -->|autolink| JiraUI[Jira issue page]
+    Title -->|opened, edited, synchronize,<br/>reopened, ready for review| Workflow[Metadata-only Actions workflow]
     Workflow -->|GET issue by key| JiraAPI[Jira REST API]
     JiraAPI -->|200 issue exists| Check[Required check: Jira ticket]
     JiraAPI -->|4xx, 429, or 5xx| Failure[Actionable failed check]
