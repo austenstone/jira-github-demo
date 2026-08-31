@@ -9,3 +9,5 @@ The pull request shows three GitHub-native behaviors:
 3. Editing the title immediately runs validation again without executing pull request code.
 
 Try the failure path by removing or corrupting the Jira key in the title, then restore `JRASERVER-1`.
+
+The current head keeps the valid title and checks green; the failed edited run remains in the Actions history as evidence.
